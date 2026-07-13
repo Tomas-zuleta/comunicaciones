@@ -141,7 +141,7 @@ function Hero() {
           <div className="hm-card"><div className="hm-num">07</div><div className="hm-lbl">Temas explorados</div></div>
           <div className="hm-card"><div className="hm-num">03</div><div className="hm-lbl">Integrantes</div></div>
           <div className="hm-card"><div className="hm-num">12</div><div className="hm-lbl">Evidencias</div></div>
-          <div className="hm-card"><div className="hm-num">01</div><div className="hm-lbl">Trimestre</div></div>
+          <div className="hm-card"><div className="hm-num">04</div><div className="hm-lbl">Trimestre</div></div>
         </div>
       </div>
       <div className="hero-right">
