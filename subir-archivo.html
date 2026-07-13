@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Convertir archivo a código (base64)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+  body { background: #0a0a0f; color: #e8f4ff; padding: 2.5rem 1.5rem; min-height: 100vh; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .sub { color: #7899b0; font-size: 0.9rem; margin-bottom: 2rem; line-height: 1.6; }
+  .card { background: #121820; border: 1px solid rgba(0,255,204,0.15); border-radius: 14px; padding: 1.75rem; margin-bottom: 1.5rem; }
+  label { display: block; font-size: 0.8rem; color: #00ffcc; margin-bottom: 0.5rem; font-weight: 600; }
+  select, input[type=text], input[type=number] {
+    width: 100%; background: #0e1420; border: 1px solid rgba(0,255,204,0.2);
+    color: #e8f4ff; padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1rem;
+  }
+  input[type=file] {
+    width: 100%; padding: 1rem; background: #0e1420; border: 1px dashed rgba(0,255,204,0.3);
+    border-radius: 8px; color: #7899b0; margin-bottom: 1rem; font-size: 0.85rem;
+  }
+  button {
+    background: #00ffcc; color: #04060d; border: none; padding: 0.75rem 1.5rem;
+    border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; width: 100%;
+  }
+  button:hover { opacity: 0.85; }
+  textarea {
+    width: 100%; height: 260px; background: #04060d; color: #4ade80;
+    border: 1px solid rgba(0,255,204,0.2); border-radius: 8px; padding: 1rem;
+    font-family: monospace; font-size: 0.72rem; margin-top: 1rem; resize: vertical;
+  }
+  .copy-btn { margin-top: 0.5rem; background: transparent; border: 1px solid rgba(0,255,204,0.3); color: #00ffcc; }
+  .info { font-size: 0.78rem; color: #5a7a90; margin-top: 0.5rem; line-height: 1.6; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .ok { color: #4ade80; font-size: 0.8rem; margin-top: 0.5rem; display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔧 Convertir archivo a código</h1>
+  <p class="sub">
+    Esta herramienta convierte tu archivo (Word, PDF, PPTX, imagen...) en un código de texto (base64)
+    que puedes pegar directamente en <code>src/data/files.js</code> de tu proyecto React.
+    El archivo queda embebido en el código — no necesitas servidor ni links externos.
+  </p>
+
+  <div class="card">
+    <label>1. Integrante</label>
+    <select id="memberId">
+      <option value="am">Integrante 1 (am)</option>
+      <option value="lk">Integrante 2 (lk)</option>
+      <option value="bf">Integrante 3 (bf)</option>
+    </select>
+
+    <div class="row">
+      <div>
+        <label>2. Posición del trabajo (0,1,2,3)</label>
+        <input type="number" id="workIndex" min="0" max="10" value="0">
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <div class="info">0 = primer trabajo de la lista, 1 = segundo, etc.</div>
+      </div>
+    </div>
+
+    <label>3. Selecciona el archivo</label>
+    <input type="file" id="fileInput">
+
+    <button onclick="convertir()">Generar código</button>
+    <p class="ok" id="okMsg">✅ Código generado abajo. Cópialo y pégalo en files.js</p>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none;">
+    <label>4. Copia este bloque completo</label>
+    <textarea id="output" readonly></textarea>
+    <button class="copy-btn" onclick="copiar()">📋 Copiar al portapapeles</button>
+    <p class="info">Pega este bloque dentro del array <code>FILES</code> en <code>src/data/files.js</code>, separado por comas de los demás.</p>
+  </div>
+</div>
+
+<script>
+function convertir() {
+  const fileInput = document.getElementById('fileInput');
+  const file = fileInput.files[0];
+  if (!file) { alert('Selecciona un archivo primero'); return; }
+
+  const memberId = document.getElementById('memberId').value;
+  const workIndex = document.getElementById('workIndex').value;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const base64 = e.target.result.split(',')[1];
+    const mime = file.type || 'application/octet-stream';
+    const code = `  {
+    memberId: '${memberId}',
+    workIndex: ${workIndex},
+    fileName: '${file.name.replace(/'/g, "\\'")}',
+    mimeType: '${mime}',
+    data: '${base64}'
+  },`;
+    document.getElementById('output').value = code;
+    document.getElementById('resultCard').style.display = 'block';
+    document.getElementById('okMsg').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function copiar() {
+  const ta = document.getElementById('output');
+  ta.select();
+  document.execCommand('copy');
+  alert('¡Copiado! Ahora pégalo en src/data/files.js');
+}
+</script>
+</body>
+</html>
